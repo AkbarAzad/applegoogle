@@ -1,0 +1,47 @@
+library(readxl)
+library(tidyverse)
+library(XLConnect)
+library(xlsx)
+library(openxlsx)
+
+
+google_charges <- read.xlsx("C:\\Users\\P1318124\\Desktop\\Apple & Google\\Apple and Google selected customers_Updated.xlsx","Google_Charges")
+
+google_pivot <- google_charges %>%
+filter(CHARGE_CODE_DESC == "Content & Services (Bill on Behalf Goods/Services)") %>%
+group_by(ACCOUNT_ID,ACTIVITY_DATE) %>%
+summarise(a_sum = round(sum(AMOUNT),2))
+
+google_pivot_overall <- google_charges %>%
+group_by(ACCOUNT_ID,ACTIVITY_DATE) %>%
+summarise(a_sum = round(sum(AMOUNT),2))
+
+google_wb <- loadWorkbook("C:\\Users\\P1318124\\Desktop\\Apple & Google\\Apple and Google selected customers.xlsx")
+
+addWorksheet(google_wb,"Google_Pivot")
+addWorksheet(google_wb,"Google_Pivot_Overall")
+addWorksheet(google_wb,"Google_Pivot_Selected")
+
+writeData(google_wb,sheet="Google_Pivot",x=google_pivot)
+writeData(google_wb,sheet="Google_Pivot_Overall",x=google_pivot_overall)
+
+saveWorkbook(google_wb,"C:\\Users\\P1318124\\Desktop\\Apple & Google\\Apple and Google selected customers.xlsx",
+overwrite=T)
+
+google_pivot_proportion <- read.xlsx("C:\\Users\\P1318124\\Desktop\\Apple & Google\\Apple and Google selected customers.xlsx","Google_Pivot_Proportion")
+
+google_pivot_selected <- google_pivot_proportion %>%
+filter(ACCOUNT_ID %in% c(10122285,12829233,30091827,30388620,37679172,39814681,
+57985054,69054846,99087421)) %>%
+group_by(ACCOUNT_ID,MONTH)
+
+writeData(google_wb,sheet="Google_Pivot_Selected",x=google_pivot_selected)
+
+saveWorkbook(google_wb,"C:\\Users\\P1318124\\Desktop\\Apple & Google\\Apple and Google selected customers.xlsx",
+overwrite=T)
+
+
+
+
+
+
