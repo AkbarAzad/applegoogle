@@ -1,0 +1,74 @@
+library(openxlsx)
+library(readxl)
+library(XLConnect)
+library(lubridate)
+library(eeptools)
+library(plyr)
+library(dplyr)
+library(tidyverse)
+
+
+inv_google <- read_excel("C:\\Users\\P1318124\\Desktop\\Apple & Google\\Google Play May 2018 customers CR and their charges_extract.xlsx","InvoiceAndPastDueAmt")
+
+cr_google <- read_excel("C:\\Users\\P1318124\\Desktop\\Apple & Google\\Google Play May 2018 customers CR and their charges_1.xlsx","1")
+
+pur_google <- read_excel("C:\\Users\\P1318124\\Desktop\\Apple & Google\\Google Play May 2018 customers CR and their charges_extract.xlsx","ChargeList")
+
+inv_google <- as.data.frame(inv_google)
+cr_google <- as.data.frame(cr_google)
+pur_google <- as.data.frame(pur_google)
+
+colnames(cr_google)[2] <- "ACCOUNT_ID"
+
+base1 <- (merge(cr_google,inv_google,by='ACCOUNT_ID'))
+
+length(base1$FA_CREDIT_RATING[which(is.na(base1$FA_CREDIT_RATING))])
+
+inv_cr_google <- base1
+
+pur_month <- month(as.POSIXct(dmy_hms(pur_google$ACTIVITY_DATE),format="%d-%m-%Y"))
+
+class_vec <- rep("NA",length(colnames(inv_cr_google)))
+
+for(i in 1:length(colnames(inv_cr_google))){
+class_vec[i] <- class(inv_cr_google[,i])
+}
+
+class_vec
+
+inv_cr_conc <- paste(inv_cr_google$ACCOUNT_ID,as.character(inv_cr_google$INVOICE_CREATION_DATE),sep="",collapse=NULL)
+
+inv_cr_lookup <- cbind(inv_cr_conc,inv_cr_google)
+
+pur_date <- substr(as.POSIXct(dmy_hms(pur_google$ACTIVITY_DATE),format="%d-%m-%Y"),1,10)
+
+pur_conc <- as.factor(paste(pur_google$ACCOUNT_ID,pur_date,sep="",collapse=NULL))
+
+pur_broad <- cbind(pur_conc,pur_google)
+
+colnames(inv_cr_lookup)[1] <- "ACCT_DATE"
+
+colnames(pur_broad)[1] <- "ACCT_DATE"
+
+base2 <- (merge(inv_cr_lookup,pur_broad,by='ACCT_DATE'))
+
+final <- base2
+
+write.csv(final,"C:\\Users\\P1318124\\Desktop\\Apple & Google\\Google Play March to July 2018.csv")
+
+
+#Find duplicates.
+#inv_cr_occur <- data.frame(table(inv_cr_lookup$ACCT_DATE))
+#inv_cr_occur[inv_cr_occur$Freq>1,]
+#inv_cr_lookup[inv_cr_lookup$ACCT_DATE %in% inv_cr_occur$Var1[inv_cr_occur$Freq>1],]
+
+
+
+
+
+
+
+
+
+
+
