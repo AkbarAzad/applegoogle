@@ -20,6 +20,7 @@ pur_google <- as.data.frame(pur_google)
 
 colnames(cr_google)[2] <- "ACCOUNT_ID"
 
+#Doing vlookup in R.
 base1 <- (merge(cr_google,inv_google,by='ACCOUNT_ID'))
 
 length(base1$FA_CREDIT_RATING[which(is.na(base1$FA_CREDIT_RATING))])
